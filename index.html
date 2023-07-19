@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Uluro AI Site</title>
+
+    <style>
+        #response, #gptOutput, #uploadStatus {
+            max-width: 100ch;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $("#getTimeButton").click(function(){
+            $.get("/get_time", function(data, status){
+                $("#time").text("Current time: " + data);
+            });
+        });
+
+        $("#uluroQuestionButton").click(function(){
+
+            var prompt = $("#promptInput").val();
+            $.get("/get_response", { prompt: prompt }, function(data, status){
+                $("#response").text(data);
+
+            });
+        });
+
+        $("#gptButton").click(function(){
+            var regular_prompt = $("#promptInput").val();
+            $.get("/get_normal_gpt", { regular_prompt: regular_prompt }, function(data, status){
+                $("#gptOutput").text(data);
+            });
+        });
+
+        $("#promptInput").on('input', function() {
+            console.log("Input Changed");
+            $("#response").text("");
+            $("#gptOutput").text("");
+        });
+
+        $("#fileUploadForm").on('submit', function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: "/upload_file",
+                type: 'POST',
+                data: new FormData(this),
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    $("#uploadStatus").text(data);
+                }
+            });
+        });
+
+
+    });
+    </script>
+</head>
+<body>
+    <h1>Welcome to The Uluro AI Site!</h1>
+    <button id="getTimeButton">Get current time</button>
+    <p id="time"></p>
+    <label for="promptInput">Enter your question:</label>
+    <input type="text" id="promptInput" style="width: 30%;">
+    <button id="uluroQuestionButton">Uluro Question</button> <!-- New button -->
+    <button id="gptButton">General Question</button>
+    <p id="response"></p> <!-- New paragraph element -->
+    <p id="gptOutput"></p> <!-- New paragraph element for GPT Process button output -->
+
+    <form id="fileUploadForm">
+        <input type="file" id="fileInput" name="fileInput">
+        <button type="submit">Upload File</button>
+    </form>
+    <p id="uploadStatus"></p>
+
+</body>
+</html>
